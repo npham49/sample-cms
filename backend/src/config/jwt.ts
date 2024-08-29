@@ -11,9 +11,9 @@ export function getBearerTokenFromHeader(authorization: string): string | null {
   return token || null;
 }
 
-export async function verifyToken(token: string): Promise<boolean> {
+export async function verifyToken(token: string): Promise<jose.JWTPayload> {
   const { payload } = await jose.jwtVerify(token, JWKS, {});
-  return !!payload;
+  return payload;
 }
 
 export async function protectMiddleware(
@@ -43,9 +43,9 @@ export async function protectMiddleware(
 
     res.locals.context = payload;
     console.log("Token verified, proceeding to next middleware");
-    return next();
+    next();
   } catch (error) {
     console.error("Error verifying token:", error);
-    return next(error);
+    next(error);
   }
 }

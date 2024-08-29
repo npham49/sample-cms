@@ -6,6 +6,7 @@ import "dotenv/config";
 
 import postRouter from "./routes/post.route";
 import { protectMiddleware } from "./config/jwt";
+import categoryRouter from "./routes/category.route";
 
 require("dotenv").config();
 
@@ -32,6 +33,7 @@ app.use(cors(corsOptions));
 app.use(helmet());
 
 app.use("/api/posts", protectMiddleware, postRouter);
+app.use("/api/categories", protectMiddleware, categoryRouter);
 
 const port = process.env.PORT || "8080";
 app.listen(port, () => {

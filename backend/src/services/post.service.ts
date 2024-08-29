@@ -1,12 +1,23 @@
 import { Post } from "@prisma/client";
 import { db } from "../config/db";
 import { InputJsonValue } from "@prisma/client/runtime/library";
+import { camelize } from "../utils/helper";
 
-export const createPost = async (post: Post): Promise<Post> => {
+export const createPost = async ({
+  title,
+  categoryId,
+  userId,
+}: {
+  title: string;
+  categoryId: string;
+  userId: string;
+}): Promise<Post> => {
   const newPost = await db.post.create({
     data: {
-      ...post,
-      content: post.content as InputJsonValue, // Explicitly cast the content property to any type
+      title,
+      categoryId,
+      authorId: userId,
+      blob: camelize(title),
     },
   });
   return newPost;
