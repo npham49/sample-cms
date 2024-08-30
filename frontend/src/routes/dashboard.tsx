@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "../components/ui/button";
 import {
   Accordion,
@@ -6,13 +5,14 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "../components/ui/accordion";
-import { SaveIcon, SendIcon } from "lucide-react";
 import AddCategoryDialog from "../components/add-category-dialog";
 import { useQuery } from "@tanstack/react-query";
 import { useAPIProvider } from "../services/api-service";
 import { Category, Post } from "../types";
 import AddPageDialog from "../components/add-page-dialog";
-import Editor from "../components/editor";
+import { useDispatch } from "react-redux";
+import { updatePost } from "../store/post/postSlice";
+import PostEditor from "../components/post-editor";
 
 export default function Component() {
   const apiProvider = useAPIProvider();
@@ -23,18 +23,7 @@ export default function Component() {
     queryFn: () => apiProvider.getCategories(),
   });
 
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [content, setContent] = useState("");
-
-  const handleSave = () => {
-    console.log("Saving content:", content);
-    // Implement save logic here
-  };
-
-  const handlePublish = () => {
-    console.log("Publishing content:", content);
-    // Implement publish logic here
-  };
+  const dispatch = useDispatch();
 
   return (
     <div className="flex h-screen bg-background">
@@ -46,58 +35,55 @@ export default function Component() {
           {isLoading && <p>Loading...</p>}
           {isError && <p>Error: {error.message}</p>}
           {data &&
-            data.map((category: Category) => (
-              <AccordionItem value={category.name} key={category.id}>
-                <AccordionTrigger>{category.name}</AccordionTrigger>
-                <AccordionContent>
-                  <div className="flex flex-col space-y-2">
-                    {category.posts.map((post: Post) => (
-                      <Button
-                        key={post.postId}
-                        variant="ghost"
-                        className="justify-start pl-4"
-                        onClick={() => setSelectedCategory(post.title)}
-                      >
-                        {post.title}
-                      </Button>
-                    ))}
+            data.map((category: Category) => {
+              // Goes through the list of posts and returns the posts with the highest version number and unique blob
+              // Iterate over the posts adding them to the reducer, then return the updated list of posts
+              const posts = category.posts.reduce((acc: Post[], post: Post) => {
+                const existingPost = acc.find((p) => p.blob === post.blob);
+                if (existingPost) {
+                  if (existingPost.version < post.version) {
+                    return acc.map((p) =>
+                      p.blob === post.blob ? { ...post, title: post.title } : p
+                    );
+                  }
+                  return acc;
+                }
+                return [...acc, post];
+              }, []);
+              return (
+                <AccordionItem value={category.name} key={category.id}>
+                  <AccordionTrigger>{category.name}</AccordionTrigger>
+                  <AccordionContent>
+                    <div className="flex flex-col space-y-2">
+                      {posts.map((post: Post) => (
+                        <Button
+                          key={post.postId}
+                          variant="ghost"
+                          className="justify-start pl-4"
+                          onClick={() => dispatch(updatePost(post))}
+                        >
+                          {post.title}
+                        </Button>
+                      ))}
 
-                    {/* Add Page */}
-                    <AddPageDialog
-                      categoryId={category.id}
-                      categoryName={category.name}
-                    />
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
+                      {/* Add Page */}
+                      <AddPageDialog
+                        categoryId={category.id}
+                        categoryName={category.name}
+                      />
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              );
+            })}
         </Accordion>
 
         {/* Add Category Dialog */}
         <AddCategoryDialog />
-
-        {/* Add Page Dialog */}
       </div>
 
       {/* Right content area */}
-      {selectedCategory !== "" && (
-        <div className="flex-1 p-4 flex flex-col">
-          <div className="mb-4 flex justify-between">
-            <h1 className="text-2xl font-bold">Editing: {selectedCategory}</h1>
-            <div className="space-x-2">
-              <Button onClick={handleSave} variant="outline">
-                <SaveIcon className="mr-2 h-4 w-4" />
-                Save
-              </Button>
-              <Button onClick={handlePublish}>
-                <SendIcon className="mr-2 h-4 w-4" />
-                Publish
-              </Button>
-            </div>
-          </div>
-          <Editor onChange={setContent} content={content} />
-        </div>
-      )}
+      <PostEditor />
     </div>
   );
 }

@@ -6,7 +6,6 @@ const jwksUri = process.env.JWKS_URI || "";
 const JWKS = jose.createRemoteJWKSet(new URL(jwksUri));
 
 export function getBearerTokenFromHeader(authorization: string): string | null {
-  console.log(authorization);
   const [, token] = authorization.split("Bearer ");
   return token || null;
 }
@@ -21,7 +20,6 @@ export async function protectMiddleware(
   res: Response,
   next: NextFunction
 ) {
-  console.log("Middleware started");
   const { authorization } = req.headers;
   if (!authorization) {
     console.log("No authorization header");
@@ -42,7 +40,6 @@ export async function protectMiddleware(
     }
 
     res.locals.context = payload;
-    console.log("Token verified, proceeding to next middleware");
     next();
   } catch (error) {
     console.error("Error verifying token:", error);

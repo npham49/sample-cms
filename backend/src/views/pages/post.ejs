@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <%- include('../partials/head'); %>
+  </head>
+  <body class="container">
+    <header><%- include('../partials/header'); %></header>
+
+    <main class="container">
+      <h1><%= post.title %></h1>
+      <article id="content"><%- post.content %></article>
+    </main>
+  </body>
+</html>

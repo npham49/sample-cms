@@ -7,6 +7,8 @@ import "dotenv/config";
 import postRouter from "./routes/post.route";
 import { protectMiddleware } from "./config/jwt";
 import categoryRouter from "./routes/category.route";
+import viewRouter from "./routes/view.route";
+import path from "path";
 
 require("dotenv").config();
 
@@ -21,6 +23,8 @@ const corsOptions = {
 
 const app = express();
 
+app.set("views", path.join(__dirname, "../src/views"));
+app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(
@@ -30,10 +34,15 @@ app.use(
 );
 app.set("trust proxy", "loopback, linklocal, uniquelocal");
 app.use(cors(corsOptions));
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  })
+);
 
 app.use("/api/posts", protectMiddleware, postRouter);
 app.use("/api/categories", protectMiddleware, categoryRouter);
+app.use("/content", viewRouter);
 
 const port = process.env.PORT || "8080";
 app.listen(port, () => {

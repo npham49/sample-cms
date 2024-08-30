@@ -35,6 +35,53 @@ export const useAPIProvider = () => {
     return response;
   }
 
+  async function savePost(content: string, id: string) {
+    const token = await getToken();
+    const response = await axios
+      .put(
+        `${apiUrl}/api/posts/${id}`,
+        { content: content },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((res) => res.data);
+    return response;
+  }
+
+  async function getLatestPostVersion(id: string) {
+    const token = await getToken();
+    const response = await axios
+      .get(`${apiUrl}/api/posts/latest/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => res.data);
+    return response;
+  }
+
+  async function publishPost(id: string, content: string) {
+    const token = await getToken();
+    const response = await axios
+      .post(
+        `${apiUrl}/api/posts/publish/${id}`,
+        { content },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((res) => res.data);
+    return response;
+  }
+
   async function getCategories() {
     const token = await getToken();
 
@@ -67,5 +114,13 @@ export const useAPIProvider = () => {
     return response;
   }
 
-  return { getPosts, createPost, getCategories, createCategory };
+  return {
+    getPosts,
+    createPost,
+    getCategories,
+    createCategory,
+    savePost,
+    getLatestPostVersion,
+    publishPost,
+  };
 };

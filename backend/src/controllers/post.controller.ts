@@ -5,6 +5,39 @@ export const getPostsController = async (req: Request, res: Response) => {
   return res.status(200).send("Hello, World!");
 };
 
+export const getLatestPostController = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const post = await postService.getLatestPost(id);
+    return res.status(200).json(post);
+  } catch (error) {
+    return res.status(500).json({ error: (error as any).message });
+  }
+};
+
+export const publishPostController = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { content } = req.body;
+    const post = await postService.publishPost(id, content || "");
+    return res.status(200).json(post);
+  } catch (error) {
+    console.error("Error publishing post:", error);
+    return res.status(500).json({ error: (error as any).message });
+  }
+};
+
+export const getPostBySlugController = async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+    const post = await postService.getPostBySlug(slug);
+    return res.status(200).json(post);
+  } catch (error) {
+    console.error("Error getting post by slug:", error);
+    return res.status(500).json({ error: (error as any).message });
+  }
+};
+
 export const createPostController = async (req: Request, res: Response) => {
   try {
     const { title, categoryId } = req.body;
@@ -29,7 +62,15 @@ export const createPostController = async (req: Request, res: Response) => {
 };
 
 export const updatePostController = async (req: Request, res: Response) => {
-  return res.status(200).send("Hello, World!");
+  try {
+    const { id } = req.params;
+    const { content } = req.body;
+    const category = await postService.updatePost(id, content);
+    return res.status(200).json(category);
+  } catch (error) {
+    console.error("Error updating post:", error);
+    return res.status(500).json({ error: (error as any).message });
+  }
 };
 
 export const deletePostController = async (req: Request, res: Response) => {

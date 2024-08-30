@@ -3,7 +3,7 @@ export type Post = {
   title: string;
   postId: string;
   blob: string;
-  content: unknown | null;
+  content: string | null;
   published: boolean;
   authorId: string;
   version: number;
@@ -13,7 +13,7 @@ export type Post = {
 
 export type PostCreate = {
   title: string;
-  content: unknown | null;
+  content: string | null;
   published: boolean;
   categoryId: string;
 };
@@ -21,7 +21,7 @@ export type PostCreate = {
 export type PostUpdate = {
   title: string;
   postId: string;
-  content: unknown | null;
+  content: string | null;
   published: boolean;
 };
 
