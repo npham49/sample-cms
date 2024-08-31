@@ -1,6 +1,6 @@
 import Component from "./editor";
 import { CastIcon, ExternalLink, SaveIcon, SendIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Post } from "../types";
 import { Button } from "./ui/button";
@@ -8,10 +8,13 @@ import { useAPIProvider } from "../services/api-service";
 import { useMutation } from "@tanstack/react-query";
 import { updatePost } from "../store/post/postSlice";
 import { Link } from "react-router-dom";
+import store from "../store";
+import { useCurrentEditor } from "@tiptap/react";
 
 const PostEditor = () => {
   const apiProvider = useAPIProvider();
   const dispatch = useDispatch();
+  const { editor } = useCurrentEditor();
 
   const selectedPost = useSelector(
     (state: { post: { value: Post } }) => state.post.value
@@ -42,6 +45,20 @@ const PostEditor = () => {
     // Implement publish logic here
     publishPostMutation.mutate();
   };
+
+  // subscribe to the selected post in redux and save content to the selected post
+  useEffect(() => {
+    // Subscribe to store updates
+    const unsubscribe = store.subscribe(() => {
+      const newPost: Post | undefined = store.getState().post.value;
+      // @ts-expect-error - TS doesn't know that the value is a Post
+      editor?.commands.setContent(newPost?.content);
+    });
+
+    // Cleanup subscription on component unmount
+    return () => unsubscribe();
+  }, []);
+
   return (
     <div>
       {" "}
@@ -85,7 +102,9 @@ const PostEditor = () => {
               </Button>
             </div>
           </div>
-          <Component onChange={setContent} content={content} />
+          {selectedPost && content && (
+            <Component onChange={setContent} content={content} />
+          )}
         </div>
       )}
     </div>
