@@ -48,8 +48,6 @@ export const createPostController = async (req: Request, res: Response) => {
     if (!res.locals.context) {
       return res.status(401).send("Unauthorized");
     }
-
-    console.log("Context:", res.locals.context);
     const userId = res.locals.context.userid;
 
     // Create post

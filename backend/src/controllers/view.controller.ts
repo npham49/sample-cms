@@ -32,8 +32,6 @@ export const getPostViewController = async (req: Request, res: Response) => {
         })
       );
 
-    console.log("Header content:", headerContent);
-
     return res.render("pages/post", {
       post: post,
       headerContent: headerContent,
@@ -73,8 +71,6 @@ export const getPreViewPostController = async (req: Request, res: Response) => {
           return { id: category.id, name: category.name, posts: uniquePosts };
         })
       );
-
-    console.log("Header content:", headerContent);
 
     return res.render("pages/post", {
       post: post,
