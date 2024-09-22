@@ -8,7 +8,7 @@ export default function TemplatePage({
   const { templateId } = params;
 
   return (
-    <div>
+    <div className="h-full">
       {templateId ? (
         <CustomEditor templateId={templateId} />
       ) : (
